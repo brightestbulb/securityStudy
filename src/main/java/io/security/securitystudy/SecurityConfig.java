@@ -68,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         response.sendRedirect("/login");
                     }
                 })
-                .deleteCookies("remember-me")  // "remember-me" 쿠키 삭제
-                ;
+                .deleteCookies("remember-me");  // "remember-me" 쿠키 삭제
+
     }
 }
