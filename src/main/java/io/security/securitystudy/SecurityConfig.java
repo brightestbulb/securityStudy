@@ -8,10 +8,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Configuration
@@ -25,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();  // 어떤 요청에도 인증을 받는다(= 인가정책)
         http  // 인증
                 .formLogin()
-                .loginPage("/loginPage")
+//                .loginPage("/loginPage")
                 .defaultSuccessUrl("/")
                 .failureUrl("/login")
                 .usernameParameter("userId")
@@ -47,5 +50,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 })
                 // /loginPage 이 경로로 접근하는 사용자는 인증을 받지 않아도 이 페이지에 접근이 가능하도록 설정
                 .permitAll();
+
+        http
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .addLogoutHandler(new LogoutHandler() {
+                    @Override
+                    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+                        HttpSession session = request.getSession();
+                        session.invalidate(); // 세션 무효화
+                    }
+                })
+                .logoutSuccessHandler(new LogoutSuccessHandler() {
+                    @Override
+                    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                        response.sendRedirect("/login");
+                    }
+                })
+                .deleteCookies("remember-me")  // "remember-me" 쿠키 삭제
+                ;
     }
 }
