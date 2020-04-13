@@ -31,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http  // 인가
                 .authorizeRequests()
                 .anyRequest().authenticated();  // 어떤 요청에도 인증을 받는다(= 인가정책)
+
         http  // 인증
                 .formLogin()
 //                .loginPage("/loginPage")
@@ -80,5 +81,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .rememberMeParameter("remember")
                 .tokenValiditySeconds(3600) // 3600 sec
                 .userDetailsService(userDetailsService);
+
+        http  // 동시 세션 제어
+                .sessionManagement()
+                .maximumSessions(2)  // 최대 허용 세션 갯수
+                .maxSessionsPreventsLogin(true);  // 첫번째 사용자만 로그인 허용
+
+        http  // 세션 고정 보호
+                .sessionManagement()
+                .sessionFixation().changeSessionId();
     }
 }
